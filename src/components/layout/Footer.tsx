@@ -43,17 +43,17 @@ const Footer = () => {
               Connecting intent with impact. A bridge between NGOs and volunteers for a better India.
             </p>
             <div className="flex flex-col gap-2 text-sm text-primary-foreground/70">
-              <a href="mailto:connect@sevaasetu.in" className="flex items-center gap-2 hover:text-saffron-400 transition-colors">
+              <a href="mailto:s@sevaasetu.in" className="flex items-center gap-2 hover:text-saffron-400 transition-colors">
                 <Mail className="w-4 h-4" />
-                connect@sevaasetu.in
+                support@sevaasetu.in
               </a>
-              <a href="tel:+911234567890" className="flex items-center gap-2 hover:text-saffron-400 transition-colors">
+              <a href="tel:+917715041073" className="flex items-center gap-2 hover:text-saffron-400 transition-colors">
                 <Phone className="w-4 h-4" />
-                +91 12345 67890
+                +91 77150 41073
               </a>
               <p className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
-                New Delhi, India
+                Mumbai, India
               </p>
             </div>
           </div>
