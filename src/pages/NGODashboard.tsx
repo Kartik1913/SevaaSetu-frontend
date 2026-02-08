@@ -16,6 +16,7 @@ import {
   Shield,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { API_URL } from "@/config/api";
 
 // Mock posted opportunities
 const postedOpportunities = [
@@ -106,7 +107,7 @@ const NGODashboard = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/me", {
+      const res = await fetch(`${API_URL}/api/auth/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

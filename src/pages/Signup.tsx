@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { User, Mail, Lock, Building2, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { API_URL } from "@/config/api";
 
 const Signup = () => {
   const [role, setRole] = useState<"volunteer" | "ngo">("volunteer");
@@ -33,7 +34,7 @@ const Signup = () => {
       role,
     };
 
-    const res = await fetch("http://localhost:5000/api/auth/register", {
+    const res = await fetch(`${API_URL}/api/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
