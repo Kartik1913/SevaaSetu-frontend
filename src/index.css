@@ -1,0 +1,269 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* SevaaSetu Design System - Indian Civic-Tech Inspired */
+
+@layer base {
+  :root {
+    /* Navy Blue - Ashoka Chakra inspired (Primary) */
+    --primary: 225 73% 20%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* VIBRANT ORANGE (Deep Punchy Orange) */
+    --saffron: 20 100% 50%; 
+    --saffron-foreground: 0 0% 100%;
+    
+    /* India Green - Growth & Progress */
+    --india-green: 140 63% 28%;
+    --india-green-foreground: 0 0% 100%;
+    
+    /* Background & Surfaces */
+    --background: 210 20% 98%;
+    --foreground: 225 50% 15%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 225 50% 15%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 225 50% 15%;
+    
+    /* Secondary - Light blue-gray */
+    --secondary: 210 20% 94%;
+    --secondary-foreground: 225 50% 20%;
+    
+    /* Muted */
+    --muted: 210 15% 92%;
+    --muted-foreground: 220 10% 45%;
+    
+    /* Accent - Orange tint */
+    --accent: 20 100% 96%;
+    --accent-foreground: 20 100% 50%;
+    
+    /* Success - India Green */
+    --success: 140 63% 28%;
+    --success-foreground: 0 0% 100%;
+    
+    /* Destructive */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Borders & Inputs */
+    --border: 220 13% 87%;
+    --input: 220 13% 91%;
+    --ring: 20 100% 50%; /* Focus ring is now deep Orange */
+    
+    --radius: 0.75rem;
+    
+    /* Sidebar */
+    --sidebar-background: 225 73% 15%;
+    --sidebar-foreground: 210 20% 95%;
+    --sidebar-primary: 20 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 225 60% 25%;
+    --sidebar-accent-foreground: 210 20% 95%;
+    --sidebar-border: 225 50% 25%;
+    --sidebar-ring: 20 100% 50%;
+    
+    /* Custom Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(225 73% 20%) 0%, hsl(225 60% 30%) 100%);
+    /* Updated Gradient: Deep Orange to Red-Orange */
+    --gradient-saffron: linear-gradient(135deg, hsl(20 100% 50%) 0%, hsl(15 100% 55%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 20% 98%) 100%);
+  }
+
+  .dark {
+    --background: 225 50% 8%;
+    --foreground: 210 20% 95%;
+    
+    --card: 225 50% 12%;
+    --card-foreground: 210 20% 95%;
+    
+    --popover: 225 50% 12%;
+    --popover-foreground: 210 20% 95%;
+    
+    --primary: 20 100% 50%;
+    --primary-foreground: 225 73% 15%;
+    
+    --secondary: 225 40% 18%;
+    --secondary-foreground: 210 20% 90%;
+    
+    --muted: 225 40% 20%;
+    --muted-foreground: 220 15% 60%;
+    
+    --accent: 20 80% 20%;
+    --accent-foreground: 20 100% 70%;
+    
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 225 40% 22%;
+    --input: 225 40% 22%;
+    --ring: 20 100% 50%;
+    
+    --sidebar-background: 225 50% 6%;
+    --sidebar-foreground: 210 20% 95%;
+    --sidebar-primary: 20 100% 50%;
+    --sidebar-primary-foreground: 225 50% 8%;
+    --sidebar-accent: 225 40% 15%;
+    --sidebar-accent-foreground: 210 20% 95%;
+    --sidebar-border: 225 40% 18%;
+    --sidebar-ring: 20 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+/* FORCE OVERRIDES 
+   These classes will now ignore the default Tailwind colors and use our new vibrant Orange 
+*/
+@layer utilities {
+  .bg-saffron-500 {
+    background-color: hsl(20 100% 50%) !important;
+  }
+  .bg-saffron-600 {
+    background-color: hsl(20 100% 45%) !important; /* Slightly darker for hover */
+  }
+  
+  .text-saffron-500 {
+    color: hsl(20 100% 50%) !important;
+  }
+  .text-saffron-400 {
+    /* Making 400 the same punchy orange so it pops on dark backgrounds */
+    color: hsl(20 100% 50%) !important; 
+  }
+  
+  .border-saffron-500 {
+    border-color: hsl(20 100% 50%) !important;
+  }
+  
+  /* Text Gradients */
+  .text-gradient-saffron {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(20 100% 50%) 0%, hsl(15 100% 55%) 100%) !important;
+  }
+  
+  .text-gradient-navy {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(225 73% 20%) 0%, hsl(225 60% 35%) 100%);
+  }
+  
+  /* Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+  
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+}
+
+@layer components {
+  /* Hero Section Styles */
+  .hero-gradient {
+    background: var(--gradient-hero);
+  }
+  
+  .saffron-gradient {
+    background: linear-gradient(135deg, hsl(20 100% 50%) 0%, hsl(15 100% 55%) 100%) !important;
+  }
+  
+  /* Card Styles */
+  .civic-card {
+    @apply bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-shadow duration-300;
+  }
+  
+  .civic-card-elevated {
+    @apply bg-card rounded-xl border border-border shadow-lg hover:shadow-xl transition-shadow duration-300;
+  }
+  
+  /* Badge Styles */
+  .badge-saffron {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    background-color: hsl(20 100% 50% / 0.15) !important; 
+    color: hsl(20 90% 40%) !important;
+  }
+  
+  .badge-green {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    background-color: hsl(140 63% 28% / 0.15);
+    color: hsl(140 63% 25%);
+  }
+  
+  .badge-navy {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    background-color: hsl(225 73% 20% / 0.1);
+    color: hsl(225 73% 25%);
+  }
+  
+  /* Section Styles */
+  .section-padding {
+    @apply py-16 md:py-24 px-4 md:px-8;
+  }
+  
+  /* Tricolor accent */
+  .tricolor-bar {
+    height: 4px;
+    background: linear-gradient(90deg, 
+      hsl(20 100% 50%) 0%,      /* Deep Orange */
+      hsl(20 100% 50%) 33.33%,  /* Deep Orange */
+      hsl(0 0% 100%) 33.33%, 
+      hsl(0 0% 100%) 66.66%, 
+      hsl(140 63% 28%) 66.66%, 
+      hsl(140 63% 28%) 100%
+    );
+  }
+  
+  /* Government-style decorative elements */
+  .govt-pattern {
+    background-image: radial-gradient(circle at 1px 1px, hsl(225 73% 20% / 0.03) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
