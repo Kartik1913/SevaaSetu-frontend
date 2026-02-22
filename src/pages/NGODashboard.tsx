@@ -140,7 +140,7 @@ const NGODashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header />
+      <Header/>
 
       <main className="flex-grow py-8 md:py-12">
         <div className="container mx-auto px-4">
@@ -244,14 +244,24 @@ const NGODashboard = () => {
                   <Building2 className="w-10 h-10 text-primary-foreground" />
                 </div>
                 <div className="flex items-center justify-center gap-2">
-                  <h2 className="font-semibold text-lg">{ngo.name}</h2>
-                  {ngo.verified && (
-                    <Shield className="w-5 h-5 text-india-green-500" />
-                  )}
-                </div>
-                {ngo.verified && (
-                  <span className="badge-green text-xs">Verified NGO</span>
-                )}
+  <h2 className="font-semibold text-lg">{ngo.name}</h2>
+
+  {ngo.verified ? (
+    <Shield className="w-5 h-5 text-india-green-500" />
+  ) : (
+    <Shield className="w-5 h-5 text-yellow-500 opacity-60" />
+  )}
+</div>
+
+{ngo.verified ? (
+  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+    Verified NGO
+  </span>
+) : (
+  <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
+    Pending Verification
+  </span>
+)}
                 <p className="text-sm text-muted-foreground mt-4">
                   {ngo.description}
                 </p>
@@ -282,7 +292,6 @@ const NGODashboard = () => {
     </div>
   );
 };
-
 const StatCard = ({ label, value, icon: Icon }: any) => (
   <motion.div className="civic-card p-5 bg-card">
     <Icon className="w-5 h-5 mb-2" />
