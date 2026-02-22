@@ -17,6 +17,9 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { API_URL } from "@/config/api";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+
 
 // Mock posted opportunities
 const postedOpportunities = [
@@ -79,6 +82,10 @@ const recentApplicants = [
 
 const NGODashboard = () => {
   const navigate = useNavigate();
+  const [showForm, setShowForm] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
 
   const [ngo, setNgo] = useState<any>(null);
 
@@ -94,6 +101,10 @@ const NGODashboard = () => {
     (sum, opp) => sum + opp.pending,
     0
   );
+  const [category, setCategory] = useState("");
+  const [commitment, setCommitment] = useState("");
+  const [skills, setSkills] = useState<string[]>([]);
+  const [skillInput, setSkillInput] = useState("");
 
   // 🔐 Auth + NGO bootstrap (TEMP until /auth/me)
   useEffect(() => {
@@ -159,7 +170,7 @@ const NGODashboard = () => {
                 Manage your opportunities and connect with volunteers
               </p>
             </div>
-            <Button variant="saffron" size="lg">
+            <Button variant="saffron" size="lg" onClick={() => setShowForm(true)}>
               <Plus className="w-5 h-5" />
               Post New Opportunity
             </Button>
@@ -172,6 +183,107 @@ const NGODashboard = () => {
             <StatCard label="Accepted" value={totalAccepted} icon={UserCheck} />
             <StatCard label="Pending Review" value={totalPending} icon={Clock} />
           </div>
+
+          {/* 👇 ADD FORM HERE 👇 */}
+{showForm && (
+  <div className="civic-card p-6 bg-card mb-6">
+    <h2 className="font-semibold mb-4">Create Opportunity</h2>
+
+    <input
+      className="w-full mb-3 p-2 border rounded"
+      placeholder="Title"
+      value={title}
+      onChange={(e) => setTitle(e.target.value)}
+    />
+
+    <textarea
+      className="w-full mb-3 p-2 border rounded"
+      placeholder="Description"
+      value={description}
+      onChange={(e) => setDescription(e.target.value)}
+    />
+
+    <input
+      className="w-full mb-3 p-2 border rounded"
+      placeholder="Location"
+      value={location}
+      onChange={(e) => setLocation(e.target.value)}
+    />
+    <input
+  className="w-full mb-3 p-2 border rounded"
+  placeholder="Add skill and press Enter"
+  value={skillInput}
+  onChange={(e) => setSkillInput(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (skillInput.trim()) {
+        setSkills([...skills, skillInput.trim()]);
+        setSkillInput("");
+      }
+    }
+  }}
+/>
+
+<div className="flex flex-wrap gap-2 mb-3">
+  {skills.map((skill, index) => (
+    <span key={index} className="px-2 py-1 bg-gray-200 rounded text-sm">
+      {skill}
+    </span>
+  ))}
+</div>
+    
+
+    <Select onValueChange={setCategory}>
+  <SelectTrigger className="w-full mb-3">
+    <SelectValue placeholder="Select Category" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="Education">Education</SelectItem>
+    <SelectItem value="Environment">Environment</SelectItem>
+    <SelectItem value="Health">Health</SelectItem>
+    <SelectItem value="Social Welfare">Social Welfare</SelectItem>
+  </SelectContent>
+</Select>
+
+<Select onValueChange={setCommitment}>
+  <SelectTrigger className="w-full mb-3">
+    <SelectValue placeholder="Select Commitment" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="Flexible">Flexible</SelectItem>
+    <SelectItem value="Weekends">Weekends</SelectItem>
+    <SelectItem value="Weekdays">Weekdays</SelectItem>
+    <SelectItem value="Monthly">Monthly</SelectItem>
+  </SelectContent>
+</Select>
+
+    <Button
+      onClick={async () => {
+        const token = localStorage.getItem("token");
+
+        await fetch(`${API_URL}/api/opportunity/create`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ title, description, location, category, commitment, skills, }),
+        });
+
+        setShowForm(false);
+        setTitle("");
+        setDescription("");
+        setLocation("");
+        setSkills([]);
+        // window.location.reload(); 
+        alert("Opportunity Created Successfully");
+      }}
+    >
+      Save
+    </Button>
+  </div>
+)}
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Left */}

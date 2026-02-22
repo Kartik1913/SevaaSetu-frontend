@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -22,96 +22,127 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { API_URL } from "@/config/api";
 
 // Mock data for opportunities (KEPT YOUR DATA)
-const mockOpportunities = [
-  {
-    id: 1,
-    title: "Teaching English to Underprivileged Children",
-    ngo: "Pratham Education Foundation",
-    category: "Education",
-    location: "Mumbai, Maharashtra",
-    commitment: "Weekends",
-    skills: ["Teaching", "Communication"],
-    description: "Help children learn English through interactive sessions. No prior teaching experience required.",
-    icon: GraduationCap,
-  },
-  {
-    id: 2,
-    title: "Tree Plantation Drive Coordinator",
-    ngo: "Green Earth Initiative",
-    category: "Environment",
-    location: "Delhi NCR",
-    commitment: "Flexible",
-    skills: ["Coordination", "Event Management"],
-    description: "Coordinate weekend plantation drives across Delhi NCR region.",
-    icon: Leaf,
-  },
-  {
-    id: 3,
-    title: "Health Camp Assistant",
-    ngo: "Rural Health Mission",
-    category: "Health",
-    location: "Pune, Maharashtra",
-    commitment: "Monthly",
-    skills: ["Medical", "First Aid"],
-    description: "Assist doctors during free health camps in rural areas around Pune.",
-    icon: HeartPulse,
-  },
-  {
-    id: 4,
-    title: "Women's Skill Development Trainer",
-    ngo: "Shakti Foundation",
-    category: "Social Welfare",
-    location: "Bangalore, Karnataka",
-    commitment: "Weekdays",
-    skills: ["Training", "Crafts"],
-    description: "Teach vocational skills to women from underprivileged backgrounds.",
-    icon: Users2,
-  },
-  {
-    id: 5,
-    title: "Digital Literacy Program",
-    ngo: "Digital India Foundation",
-    category: "Education",
-    location: "Hyderabad, Telangana",
-    commitment: "Weekends",
-    skills: ["Tech", "Teaching"],
-    description: "Teach basic computer skills to senior citizens and rural youth.",
-    icon: GraduationCap,
-  },
-  {
-    id: 6,
-    title: "Clean River Campaign",
-    ngo: "Narmada Bachao",
-    category: "Environment",
-    location: "Ahmedabad, Gujarat",
-    commitment: "Monthly",
-    skills: ["Physical Work", "Coordination"],
-    description: "Join monthly river cleaning drives along the Sabarmati riverfront.",
-    icon: Leaf,
-  },
-];
+// const mockOpportunities = [
+//   {
+//     id: 1,
+//     title: "Teaching English to Underprivileged Children",
+//     ngo: "Pratham Education Foundation",
+//     category: "Education",
+//     location: "Mumbai, Maharashtra",
+//     commitment: "Weekends",
+//     skills: ["Teaching", "Communication"],
+//     description: "Help children learn English through interactive sessions. No prior teaching experience required.",
+//     icon: GraduationCap,
+//   },
+//   {
+//     id: 2,
+//     title: "Tree Plantation Drive Coordinator",
+//     ngo: "Green Earth Initiative",
+//     category: "Environment",
+//     location: "Delhi NCR",
+//     commitment: "Flexible",
+//     skills: ["Coordination", "Event Management"],
+//     description: "Coordinate weekend plantation drives across Delhi NCR region.",
+//     icon: Leaf,
+//   },
+//   {
+//     id: 3,
+//     title: "Health Camp Assistant",
+//     ngo: "Rural Health Mission",
+//     category: "Health",
+//     location: "Pune, Maharashtra",
+//     commitment: "Monthly",
+//     skills: ["Medical", "First Aid"],
+//     description: "Assist doctors during free health camps in rural areas around Pune.",
+//     icon: HeartPulse,
+//   },
+//   {
+//     id: 4,
+//     title: "Women's Skill Development Trainer",
+//     ngo: "Shakti Foundation",
+//     category: "Social Welfare",
+//     location: "Bangalore, Karnataka",
+//     commitment: "Weekdays",
+//     skills: ["Training", "Crafts"],
+//     description: "Teach vocational skills to women from underprivileged backgrounds.",
+//     icon: Users2,
+//   },
+//   {
+//     id: 5,
+//     title: "Digital Literacy Program",
+//     ngo: "Digital India Foundation",
+//     category: "Education",
+//     location: "Hyderabad, Telangana",
+//     commitment: "Weekends",
+//     skills: ["Tech", "Teaching"],
+//     description: "Teach basic computer skills to senior citizens and rural youth.",
+//     icon: GraduationCap,
+//   },
+//   {
+//     id: 6,
+//     title: "Clean River Campaign",
+//     ngo: "Narmada Bachao",
+//     category: "Environment",
+//     location: "Ahmedabad, Gujarat",
+//     commitment: "Monthly",
+//     skills: ["Physical Work", "Coordination"],
+//     description: "Join monthly river cleaning drives along the Sabarmati riverfront.",
+//     icon: Leaf,
+//   },
+// ];
 
-const categoryColors: Record<string, string> = {
-  Education: "bg-blue-100 text-blue-700",
-  Environment: "bg-green-100 text-green-700",
-  Health: "bg-red-100 text-red-700",
-  "Social Welfare": "bg-purple-100 text-purple-700",
-};
+
+
+
 
 const Opportunities = () => {
+  const [selectedCommitment, setSelectedCommitment] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
+  const [opportunities, setOpportunities] = useState([]);
 
-  const filteredOpportunities = mockOpportunities.filter((opp) => {
-    const matchesSearch = opp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      opp.ngo.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || opp.category === selectedCategory;
-    const matchesCity = selectedCity === "all" || opp.location.includes(selectedCity);
-    return matchesSearch && matchesCategory && matchesCity;
-  });
+  const filteredOpportunities = opportunities.filter((opp: any) => {
+  const matchesSearch =
+    opp.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    opp.ngo?.firstName?.toLowerCase().includes(searchQuery.toLowerCase());
+
+  const matchesCategory =
+    selectedCategory === "all" ||
+    opp.category === selectedCategory;
+  
+  const matchesCommitment =
+    selectedCommitment === "all" ||
+    opp.commitment === selectedCommitment;
+
+  const matchesCity =
+    selectedCity === "all" ||
+    opp.location?.toLowerCase().includes(selectedCity.toLowerCase());
+
+  return matchesSearch && matchesCategory && matchesCity && matchesCommitment;
+});
+
+
+
+  useEffect(() => {
+    const fetchOpportunities = async () => {
+      const res = await fetch(`${API_URL}/api/opportunity/list`);
+      const data = await res.json();
+      setOpportunities(data);
+    };
+
+    fetchOpportunities();
+  }, []);
+
+  const categoryColors: Record<string, string> = {
+    Education: "bg-blue-100 text-blue-700",
+    Environment: "bg-green-100 text-green-700",
+    Health: "bg-red-100 text-red-700",
+    "Social Welfare": "bg-purple-100 text-purple-700",
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
@@ -207,6 +238,19 @@ const Opportunities = () => {
                   <SelectItem value="Ahmedabad">Ahmedabad</SelectItem>
                 </SelectContent>
               </Select>
+
+              <Select value={selectedCommitment} onValueChange={setSelectedCommitment}>
+                <SelectTrigger className="w-[180px] bg-slate-50 border-slate-200">
+                  <SelectValue placeholder="Commitment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Commitment</SelectItem>
+                  <SelectItem value="Flexible">Flexible</SelectItem>
+                  <SelectItem value="Weekends">Weekends</SelectItem>
+                  <SelectItem value="Weekdays">Weekdays</SelectItem>
+                  <SelectItem value="Monthly">Monthly</SelectItem>
+                </SelectContent>
+              </Select>
               
               <div className="ml-auto text-sm text-slate-500">
                  Showing <strong>{filteredOpportunities.length}</strong> results
@@ -215,9 +259,9 @@ const Opportunities = () => {
 
             {/* Opportunity Cards */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredOpportunities.map((opportunity, index) => (
+              {filteredOpportunities.map((opportunity: any, index) => (
                 <motion.div
-                  key={opportunity.id}
+                  key={opportunity._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
@@ -225,12 +269,15 @@ const Opportunities = () => {
                 >
                   <div className="p-6 flex-grow">
                     <div className="flex items-start justify-between mb-4">
-                      <div className={`w-12 h-12 rounded-xl ${categoryColors[opportunity.category]} flex items-center justify-center`}>
-                        <opportunity.icon className="w-6 h-6" />
+                      <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
+                        <Building2 className="w-6 h-6 text-orange-500" />
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${categoryColors[opportunity.category]} bg-opacity-20`}>
-                        {opportunity.category}
-                      </span>
+
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
+  categoryColors[opportunity.category] || "bg-gray-100 text-gray-600"
+}`}>
+  {opportunity.category}
+</span>
                     </div>
 
                     <h3 className="font-display font-bold text-slate-900 text-lg mb-2 line-clamp-2">
@@ -239,7 +286,7 @@ const Opportunities = () => {
 
                     <div className="flex items-center gap-2 text-sm text-slate-500 mb-4 font-medium">
                       <Building2 className="w-4 h-4 text-orange-400" />
-                      {opportunity.ngo}
+                      {opportunity.ngo?.firstName}
                     </div>
 
                     <p className="text-sm text-slate-600 mb-6 line-clamp-3 leading-relaxed">
@@ -247,7 +294,7 @@ const Opportunities = () => {
                     </p>
 
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {opportunity.skills.map((skill) => (
+                      {opportunity.skills?.map((skill: string) => (
                         <span
                           key={skill}
                           className="text-xs px-2.5 py-1 bg-slate-100 rounded-md text-slate-600 font-medium"
@@ -262,7 +309,7 @@ const Opportunities = () => {
                     <div className="flex items-center justify-between text-sm text-slate-500 mb-4">
                       <span className="flex items-center gap-1.5">
                         <MapPin className="w-4 h-4 text-orange-500" />
-                        {opportunity.location.split(",")[0]}
+                        {opportunity.location}
                       </span>
                       <span className="flex items-center gap-1.5">
                         <Clock className="w-4 h-4 text-orange-500" />
@@ -270,9 +317,23 @@ const Opportunities = () => {
                       </span>
                     </div>
 
-                    <Button className="w-full bg-saffron-500 hover:bg-saffron-600 text-white shadow-md shadow-orange-100">
-                      Apply Now
-                    </Button>
+                    <Button
+  className="w-full bg-saffron-500 hover:bg-saffron-600 text-white shadow-md shadow-orange-100"
+  onClick={async () => {
+    const token = localStorage.getItem("token");
+
+    await fetch(`${API_URL}/api/application/apply/${opportunity._id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    alert("Application submitted");
+  }}
+>
+  Apply Now
+</Button>
                   </div>
                 </motion.div>
               ))}
