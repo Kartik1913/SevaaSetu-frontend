@@ -12,7 +12,8 @@ import {
   Leaf,
   HeartPulse,
   Users2,
-  Building2
+  Building2,
+  Briefcase
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
@@ -23,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { API_URL } from "@/config/api";
+import { toast } from "sonner";
 
 // Mock data for opportunities (KEPT YOUR DATA)
 // const mockOpportunities = [
@@ -104,6 +106,23 @@ const Opportunities = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [opportunities, setOpportunities] = useState([]);
+  const [appliedIds, setAppliedIds] = useState<string[]>([]);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const getIconFromCategory = (category: string) => {
+  switch (category) {
+    case "Education":
+      return GraduationCap;
+    case "Environment":
+      return Leaf;
+    case "Health":
+      return HeartPulse;
+    case "Social Welfare":
+      return Users2;
+    default:
+      return Briefcase;
+  }
+};
+
 
   const filteredOpportunities = opportunities.filter((opp: any) => {
   const matchesSearch =
@@ -135,14 +154,61 @@ const Opportunities = () => {
     };
 
     fetchOpportunities();
+
+
   }, []);
 
-  const categoryColors: Record<string, string> = {
-    Education: "bg-blue-100 text-blue-700",
-    Environment: "bg-green-100 text-green-700",
-    Health: "bg-red-100 text-red-700",
-    "Social Welfare": "bg-purple-100 text-purple-700",
+  useEffect(() => {
+  const fetchApplied = async () => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token || role !== "volunteer") return;
+
+    const res = await fetch(`${API_URL}/api/application/my`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (!Array.isArray(data)) return;
+
+    const ids = data.map((app: any) => app.opportunity?._id);
+    setAppliedIds(ids);
   };
+
+  fetchApplied();
+}, []);
+
+  const categoryConfig: Record<string, any> = {
+  Education: {
+    icon: GraduationCap,
+    bg: "bg-blue-100",
+    text: "text-blue-700",
+    iconColor: "text-blue-600",
+  },
+  Environment: {
+    icon: Leaf,
+    bg: "bg-green-100",
+    text: "text-green-700",
+    iconColor: "text-green-600",
+  },
+  Health: {
+    icon: HeartPulse,
+    bg: "bg-red-100",
+    text: "text-red-700",
+    iconColor: "text-red-600",
+  },
+  "Social Welfare": {
+    icon: Users2,
+    bg: "bg-purple-100",
+    text: "text-purple-700",
+    iconColor: "text-purple-600",
+  },
+};
+
+
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
@@ -259,7 +325,22 @@ const Opportunities = () => {
 
             {/* Opportunity Cards */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredOpportunities.map((opportunity: any, index) => (
+              {filteredOpportunities.map((opportunity: any, index) => {
+
+                  const token = localStorage.getItem("token");
+                  const role = localStorage.getItem("role");
+                  const isApplied = appliedIds.includes(opportunity._id);
+                  const isLoading = loadingId === opportunity._id;
+                  const config = categoryConfig[opportunity.category] || {
+                    icon: Briefcase,
+                    bg: "bg-gray-100",
+                    text: "text-gray-700",
+                    iconColor: "text-gray-600",
+                  };
+
+                  const IconComponent = config.icon;
+
+                return(
                 <motion.div
                   key={opportunity._id}
                   initial={{ opacity: 0, y: 20 }}
@@ -269,24 +350,34 @@ const Opportunities = () => {
                 >
                   <div className="p-6 flex-grow">
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
-                        <Building2 className="w-6 h-6 text-orange-500" />
-                      </div>
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                        className={`w-12 h-12 rounded-xl ${config.bg} flex items-center justify-center`}
+                      >
+                        <IconComponent className={`w-6 h-6 ${config.iconColor}`} />
+                      </motion.div>
 
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
-  categoryColors[opportunity.category] || "bg-gray-100 text-gray-600"
-}`}>
-  {opportunity.category}
-</span>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${config.bg} ${config.text}`}
+                      >
+                        {opportunity.category}
+                      </span>
                     </div>
 
                     <h3 className="font-display font-bold text-slate-900 text-lg mb-2 line-clamp-2">
                       {opportunity.title}
                     </h3>
 
-                    <div className="flex items-center gap-2 text-sm text-slate-500 mb-4 font-medium">
+                    <div className="flex items-center gap-2">
                       <Building2 className="w-4 h-4 text-orange-400" />
                       {opportunity.ngo?.firstName}
+
+                      {opportunity.ngo?.ngoVerified && (
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                          Verified
+                        </span>
+                      )}
                     </div>
 
                     <p className="text-sm text-slate-600 mb-6 line-clamp-3 leading-relaxed">
@@ -317,32 +408,63 @@ const Opportunities = () => {
                       </span>
                     </div>
 
-                    <Button
-  className="w-full bg-saffron-500 hover:bg-saffron-600 text-white shadow-md shadow-orange-100"
-  onClick={async () => {
-    const token = localStorage.getItem("token");
+                        <Button
+      disabled={isApplied || isLoading}
+      className={`w-full shadow-md shadow-orange-100 ${
+        isApplied
+          ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+          : "bg-saffron-500 hover:bg-saffron-600 text-white"
+      }`}
+      onClick={async () => {
+        if (!token) {
+          window.location.href = "/login";
+          return;
+        }
 
-    const res = await fetch(`${API_URL}/api/application/apply/${opportunity._id}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+        if (role !== "volunteer") {
+          // alert("Only volunteers can apply.");
+          toast.error("Only volunteers can apply.");
+          return;
+        }
 
-    const data = await res.json();
+        setLoadingId(opportunity._id);
 
-    if (!res.ok) {
-      alert(data.message);
-    } else {
-      alert("Application submitted successfully!");
-    }
-  }}
->
-  Apply Now
-</Button>
+        try {
+          const res = await fetch(
+            `${API_URL}/api/application/apply/${opportunity._id}`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            alert(data.message);
+          } else {
+            // Real-time UI update
+            setAppliedIds((prev) => [...prev, opportunity._id]);
+          }
+        } catch {
+          // alert("Server error. Try again.");
+            toast.error("Server error. Try again.");
+        }
+
+        setLoadingId(null);
+      }}
+    >
+      {isLoading
+        ? "Applying..."
+        : isApplied
+        ? "Applied ✓"
+        : "Apply Now"}
+    </Button>
                   </div>
                 </motion.div>
-              ))}
+              )})}
             </div>
 
             {filteredOpportunities.length === 0 && (

@@ -18,6 +18,7 @@ import {
 import { motion } from "framer-motion";
 import { API_URL } from "@/config/api";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 
 
@@ -308,7 +309,7 @@ const NGODashboard = () => {
         setLocation("");
         setSkills([]);
         // window.location.reload(); 
-        alert("Opportunity Created Successfully");
+        toast.success("Opportunity Created Successfully");
         setShowForm(false);
 
 const newOppRes = await fetch(`${API_URL}/api/opportunity/my`, {
