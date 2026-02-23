@@ -54,32 +54,32 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 // ];
 
 // Mock recent applicants
-const recentApplicants = [
-  {
-    id: 1,
-    name: "Rahul Verma",
-    opportunity: "Teaching English",
-    skills: ["Teaching", "Communication"],
-    status: "pending",
-    appliedOn: "2025-02-03",
-  },
-  {
-    id: 2,
-    name: "Sneha Patel",
-    opportunity: "Weekend Tutoring",
-    skills: ["Tutoring", "Math"],
-    status: "pending",
-    appliedOn: "2025-02-02",
-  },
-  {
-    id: 3,
-    name: "Amit Kumar",
-    opportunity: "Digital Literacy",
-    skills: ["Tech", "Training"],
-    status: "pending",
-    appliedOn: "2025-02-01",
-  },
-];
+// const recentApplicants = [
+//   {
+//     id: 1,
+//     name: "Rahul Verma",
+//     opportunity: "Teaching English",
+//     skills: ["Teaching", "Communication"],
+//     status: "pending",
+//     appliedOn: "2025-02-03",
+//   },
+//   {
+//     id: 2,
+//     name: "Sneha Patel",
+//     opportunity: "Weekend Tutoring",
+//     skills: ["Tutoring", "Math"],
+//     status: "pending",
+//     appliedOn: "2025-02-02",
+//   },
+//   {
+//     id: 3,
+//     name: "Amit Kumar",
+//     opportunity: "Digital Literacy",
+//     skills: ["Tech", "Training"],
+//     status: "pending",
+//     appliedOn: "2025-02-01",
+//   },
+// ];
 
 const NGODashboard = () => {
   const navigate = useNavigate();
@@ -88,7 +88,7 @@ const NGODashboard = () => {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [postedOpportunities, setPostedOpportunities] = useState<any[]>([]);
-
+  const [applicants, setApplicants] = useState<any[]>([]);
   const [ngo, setNgo] = useState<any>(null);
 
   const totalApplicants = postedOpportunities.reduce(
@@ -149,6 +149,23 @@ const NGODashboard = () => {
 
       const oppData = await oppRes.json();
       setPostedOpportunities(oppData || []);
+
+      if (oppData && oppData.length > 0) {
+  const firstOppId = oppData[0]._id;
+
+  const appRes = await fetch(
+    `${API_URL}/api/application/ngo/${firstOppId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const appData = await appRes.json();
+  setApplicants(appData);
+}
+      
       console.log("MY OPP DATA:", oppData);
     } catch (err) {
       navigate("/login");
@@ -156,6 +173,8 @@ const NGODashboard = () => {
   };
 
   fetchNGO();
+
+  
 }, [navigate]);
 
 
@@ -401,7 +420,7 @@ setPostedOpportunities(newOppData.opportunities || []);
 </SectionCard>
 
               {/* Applicants */}
-              <SectionCard title="Recent Applicants" link="/ngo/applicants">
+              {/* <SectionCard title="Recent Applicants" link="/ngo/applicants">
                 {recentApplicants.map((a) => (
                   <div
                     key={a.id}
@@ -433,7 +452,108 @@ setPostedOpportunities(newOppData.opportunities || []);
                     </div>
                   </div>
                 ))}
-              </SectionCard>
+              </SectionCard> */}
+              <SectionCard title="Recent Applicants" link="#">
+  {applicants.length === 0 ? (
+    <div className="text-muted-foreground text-sm">
+      No applications yet.
+    </div>
+  ) : (
+    applicants.map((app: any) => (
+      <div
+        key={app._id}
+        className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl"
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+            {app.volunteer.firstName?.[0]}
+          </div>
+          <div>
+            <h3 className="font-medium text-foreground text-sm">
+              {app.volunteer.firstName}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Applied for: {app.opportunity?.title}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          {app.status === "pending" && (
+          <>
+          <Button
+            variant="success"
+            size="sm"
+            onClick={async () => {
+              const token = localStorage.getItem("token");
+
+              await fetch(
+                `${API_URL}/api/application/status/${app._id}`,
+                {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({ status: "accepted" }),
+                }
+              );
+
+              setApplicants((prev) =>
+                prev.map((a) =>
+                  a._id === app._id ? { ...a, status: "accepted" } : a
+                )
+              );
+            }}
+          >
+            Accept
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              const token = localStorage.getItem("token");
+
+              await fetch(
+                `${API_URL}/api/application/status/${app._id}`,
+                {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({ status: "rejected" }),
+                }
+              );
+
+              setApplicants((prev) =>
+                prev.map((a) =>
+                  a._id === app._id ? { ...a, status: "rejected" } : a
+                )
+              );
+            }}
+          >
+            Reject
+          </Button>
+         </> 
+          )}
+          {app.status === "accepted" && (
+    <span className="text-green-600 text-sm font-medium">
+      Accepted ✔
+    </span>
+  )}
+
+  {app.status === "rejected" && (
+    <span className="text-red-600 text-sm font-medium">
+      Rejected ✖
+    </span>
+  )}
+        </div>
+      </div>
+    ))
+  )}
+</SectionCard>
             </div>
 
             {/* Right */}
