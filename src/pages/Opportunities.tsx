@@ -322,14 +322,20 @@ const Opportunities = () => {
   onClick={async () => {
     const token = localStorage.getItem("token");
 
-    await fetch(`${API_URL}/api/application/apply/${opportunity._id}`, {
+    const res = await fetch(`${API_URL}/api/application/apply/${opportunity._id}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    alert("Application submitted");
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message);
+    } else {
+      alert("Application submitted successfully!");
+    }
   }}
 >
   Apply Now

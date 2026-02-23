@@ -21,36 +21,37 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 
 
+
 // Mock posted opportunities
-const postedOpportunities = [
-  {
-    id: 1,
-    title: "Teaching English to Underprivileged Children",
-    applicants: 12,
-    accepted: 3,
-    pending: 7,
-    rejected: 2,
-    postedOn: "2025-01-20",
-  },
-  {
-    id: 2,
-    title: "Weekend Tutoring Program",
-    applicants: 8,
-    accepted: 2,
-    pending: 5,
-    rejected: 1,
-    postedOn: "2025-01-25",
-  },
-  {
-    id: 3,
-    title: "Digital Literacy Camp",
-    applicants: 5,
-    accepted: 0,
-    pending: 5,
-    rejected: 0,
-    postedOn: "2025-02-01",
-  },
-];
+// const postedOpportunities = [
+//   {
+//     id: 1,
+//     title: "Teaching English to Underprivileged Children",
+//     applicants: 12,
+//     accepted: 3,
+//     pending: 7,
+//     rejected: 2,
+//     postedOn: "2025-01-20",
+//   },
+//   {
+//     id: 2,
+//     title: "Weekend Tutoring Program",
+//     applicants: 8,
+//     accepted: 2,
+//     pending: 5,
+//     rejected: 1,
+//     postedOn: "2025-01-25",
+//   },
+//   {
+//     id: 3,
+//     title: "Digital Literacy Camp",
+//     applicants: 5,
+//     accepted: 0,
+//     pending: 5,
+//     rejected: 0,
+//     postedOn: "2025-02-01",
+//   },
+// ];
 
 // Mock recent applicants
 const recentApplicants = [
@@ -86,19 +87,20 @@ const NGODashboard = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
+  const [postedOpportunities, setPostedOpportunities] = useState<any[]>([]);
 
   const [ngo, setNgo] = useState<any>(null);
 
   const totalApplicants = postedOpportunities.reduce(
-    (sum, opp) => sum + opp.applicants,
+    (sum, opp) => sum + (opp.totalApplicants || 0),
     0
   );
   const totalAccepted = postedOpportunities.reduce(
-    (sum, opp) => sum + opp.accepted,
+    (sum, opp) => sum + (opp.accepted || 0),
     0
   );
   const totalPending = postedOpportunities.reduce(
-    (sum, opp) => sum + opp.pending,
+    (sum, opp) => sum + (opp.pending || 0),
     0
   );
   const [category, setCategory] = useState("");
@@ -116,7 +118,7 @@ const NGODashboard = () => {
       navigate("/login");
       return;
     }
-
+    
     try {
       const res = await fetch(`${API_URL}/api/auth/me`, {
         headers: {
@@ -138,6 +140,16 @@ const NGODashboard = () => {
         registrationId: data._id,
         verified: data.ngoVerified,
       });
+
+      const oppRes = await fetch(`${API_URL}/api/opportunity/my`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const oppData = await oppRes.json();
+      setPostedOpportunities(oppData || []);
+      console.log("MY OPP DATA:", oppData);
     } catch (err) {
       navigate("/login");
     }
@@ -278,6 +290,14 @@ const NGODashboard = () => {
         setSkills([]);
         // window.location.reload(); 
         alert("Opportunity Created Successfully");
+        setShowForm(false);
+
+const newOppRes = await fetch(`${API_URL}/api/opportunity/my`, {
+  headers: { Authorization: `Bearer ${token}` },
+});
+
+const newOppData = await newOppRes.json();
+setPostedOpportunities(newOppData.opportunities || []);
       }}
     >
       Save
@@ -290,28 +310,95 @@ const NGODashboard = () => {
             <div className="lg:col-span-2 space-y-6">
               {/* Opportunities */}
               <SectionCard title="Your Opportunities" link="/ngo/opportunities">
-                {postedOpportunities.map((opp) => (
-                  <div key={opp.id} className="p-4 bg-secondary/50 rounded-xl">
-                    <div className="flex justify-between mb-2">
-                      <h3 className="font-medium text-foreground">{opp.title}</h3>
-                      <Button variant="ghost" size="sm">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <div className="flex gap-4 text-sm">
-                      <span className="flex items-center gap-1">
-                        <Users className="w-4 h-4" /> {opp.applicants}
-                      </span>
-                      <span className="flex items-center gap-1 text-india-green-600">
-                        <UserCheck className="w-4 h-4" /> {opp.accepted}
-                      </span>
-                      <span className="flex items-center gap-1 text-saffron-600">
-                        <Clock className="w-4 h-4" /> {opp.pending}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </SectionCard>
+  {postedOpportunities.length === 0 ? (
+    <div className="text-center py-10 text-muted-foreground">
+      No opportunities posted yet.
+    </div>
+  ) : (
+    postedOpportunities.map((opp: any) => (
+      <div
+        key={opp._id}
+        className="p-4 bg-secondary/50 rounded-xl border border-border hover:shadow-md transition"
+      >
+        {/* Header */}
+        <div className="flex justify-between items-start mb-3">
+          <div>
+            <h3 className="font-semibold text-foreground text-lg">
+              {opp.title}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Posted on {new Date(opp.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+        </div>
+
+        {/* Details */}
+        <div className="flex flex-wrap gap-3 text-sm mt-3">
+          <span className="flex items-center gap-1">
+            <MapPin className="w-4 h-4 text-saffron-500" />
+            {opp.location}
+          </span>
+
+          <span className="flex items-center gap-1">
+            <Briefcase className="w-4 h-4 text-saffron-500" />
+            <span className={`px-2 py-1 rounded-full text-xs ${
+  opp.category === "Education"
+    ? "bg-blue-100 text-blue-700"
+    : opp.category === "Environment"
+    ? "bg-green-100 text-green-700"
+    : opp.category === "Health"
+    ? "bg-red-100 text-red-700"
+    : "bg-purple-100 text-purple-700"
+}`}>
+  {opp.category}
+</span>
+          </span>
+
+          <span className="flex items-center gap-1">
+            <Clock className="w-4 h-4 text-saffron-500" />
+            {opp.commitment}
+          </span>
+        </div>
+
+        {/* Skills */}
+        {opp.skills?.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {opp.skills.map((skill: string, index: number) => (
+              <span
+                key={index}
+                className="px-2 py-1 bg-slate-200 rounded-md text-xs"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="flex justify-between items-center mt-4">
+  <div className="flex gap-4 text-sm">
+    <span className="flex items-center gap-1">
+      <Users className="w-4 h-4" />
+      {opp.totalApplicants || 0}
+    </span>
+
+    <span className="flex items-center gap-1 text-green-600">
+      <UserCheck className="w-4 h-4" />
+      {opp.accepted || 0}
+    </span>
+
+    <span className="flex items-center gap-1 text-saffron-600">
+      <Clock className="w-4 h-4" />
+      {opp.pending || 0}
+    </span>
+  </div>
+
+  <Button variant="ghost" size="sm">
+    <Eye className="w-4 h-4" />
+  </Button>
+</div>
+      </div>
+    ))
+  )}
+</SectionCard>
 
               {/* Applicants */}
               <SectionCard title="Recent Applicants" link="/ngo/applicants">

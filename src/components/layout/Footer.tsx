@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Heart, Mail, Phone, MapPin } from "lucide-react";
+import { Heart, Mail, Phone, MapPin, Instagram } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -51,6 +51,11 @@ const Footer = () => {
                 <Phone className="w-4 h-4" />
                 +91 77150 41073
               </a>
+              <a href="https://instagram.com/sevaasetu2026" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-saffron-400 transition-colors">
+                <Instagram className="w-4 h-4" />
+                @sevaasetu2026
+              </a>
+
               <p className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
                 Mumbai, India
