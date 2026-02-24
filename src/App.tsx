@@ -14,6 +14,7 @@ import NGOs from "./pages/NGOs";   // Imported New Page
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import NGOProfile from "./pages/NGOProfile";
+import EditNGOProfile from "./pages/EditNGOProfile";
 
 
 const queryClient = new QueryClient();
@@ -31,22 +32,31 @@ const App = () => (
           
           {/* Dashboard Routes */}
           <Route
-  path="/volunteer/dashboard"
-  element={
-    <ProtectedRoute allowedRole="volunteer">
-      <VolunteerDashboard />
-    </ProtectedRoute>
-  }
-/>
+            path="/volunteer/dashboard"
+            element={
+              <ProtectedRoute allowedRole="volunteer">
+                <VolunteerDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/ngo/dashboard"
-  element={
-    <ProtectedRoute allowedRole="ngo">
-      <NGODashboard />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/ngo/edit-profile"
+            element={
+              <ProtectedRoute allowedRole="ngo">
+                <EditNGOProfile />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/ngo/dashboard"
+            element={
+              <ProtectedRoute allowedRole="ngo">
+                <NGODashboard />
+              </ProtectedRoute>
+            }
+          />
 
           
           {/* Public Pages */}

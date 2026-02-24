@@ -665,7 +665,7 @@ setPostedOpportunities(Array.isArray(newOppData) ? newOppData : []);
     {ngo.registrationId}
   </div>
 
-  <Button variant="outline" className="w-full mt-6">
+  <Button variant="outline" className="w-full mt-6" onClick={() => navigate("/ngo/edit-profile")}>
     Edit Profile
   </Button>
 
