@@ -13,6 +13,7 @@ import About from "./pages/About"; // Imported New Page
 import NGOs from "./pages/NGOs";   // Imported New Page
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import NGOProfile from "./pages/NGOProfile";
 
 
 const queryClient = new QueryClient();
@@ -52,7 +53,7 @@ const App = () => (
           <Route path="/opportunities" element={<Opportunities />} />
           <Route path="/about" element={<About />} /> {/* NEW ROUTE */}
           <Route path="/ngos" element={<NGOs />} />   {/* NEW ROUTE */}
-          
+          <Route path="/ngo/:id" element={<NGOProfile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

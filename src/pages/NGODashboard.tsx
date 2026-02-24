@@ -140,6 +140,7 @@ const NGODashboard = () => {
         city: data.city || "Not specified",
         registrationId: data._id,
         verified: data.ngoVerified,
+        logo: data.logo || "",
       });
 
       const oppRes = await fetch(`${API_URL}/api/opportunity/my`, {
@@ -149,7 +150,7 @@ const NGODashboard = () => {
       });
 
       const oppData = await oppRes.json();
-      setPostedOpportunities(oppData || []);
+      setPostedOpportunities(Array.isArray(oppData) ? oppData : []);
 
       if (oppData && oppData.length > 0) {
   const firstOppId = oppData[0]._id;
@@ -275,6 +276,8 @@ const NGODashboard = () => {
     <SelectItem value="Environment">Environment</SelectItem>
     <SelectItem value="Health">Health</SelectItem>
     <SelectItem value="Social Welfare">Social Welfare</SelectItem>
+    <SelectItem value="Disaster Relief">Disaster Relief</SelectItem>
+    <SelectItem value="Women Empowerment">Women Empowerment</SelectItem>
   </SelectContent>
 </Select>
 
@@ -317,7 +320,7 @@ const newOppRes = await fetch(`${API_URL}/api/opportunity/my`, {
 });
 
 const newOppData = await newOppRes.json();
-setPostedOpportunities(newOppData.opportunities || []);
+setPostedOpportunities(Array.isArray(newOppData) ? newOppData : []);
       }}
     >
       Save
@@ -368,7 +371,13 @@ setPostedOpportunities(newOppData.opportunities || []);
     ? "bg-green-100 text-green-700"
     : opp.category === "Health"
     ? "bg-red-100 text-red-700"
-    : "bg-purple-100 text-purple-700"
+    : opp.category === "Social Welfare"
+    ? "bg-purple-100 text-purple-700"
+    : opp.category === "Disaster Relief"
+    ? "bg-orange-100 text-orange-700"
+    : opp.category === "Women Empowerment"
+    ? "bg-pink-100 text-pink-700"
+    : "bg-gray-100 text-gray-700"
 }`}>
   {opp.category}
 </span>
@@ -560,49 +569,107 @@ setPostedOpportunities(newOppData.opportunities || []);
             {/* Right */}
             <div className="space-y-6">
               <motion.div className="civic-card p-6 bg-card text-center">
-                <div className="w-20 h-20 rounded-2xl bg-primary mx-auto mb-4 flex items-center justify-center">
-                  <Building2 className="w-10 h-10 text-primary-foreground" />
-                </div>
-                <div className="flex items-center justify-center gap-2">
-  <h2 className="font-semibold text-lg">{ngo.name}</h2>
 
+  {/* LOGO WITH UPLOAD */}
+  <div className="relative w-20 h-20 mx-auto mb-4">
+
+    {ngo.logo ? (
+      <img
+        src={ngo.logo}
+        alt={ngo.name}
+        className="w-20 h-20 rounded-2xl object-cover"
+      />
+    ) : (
+      <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center text-white text-2xl font-bold">
+        {ngo.name?.[0]}
+      </div>
+    )}
+
+    {/* Upload Icon Overlay */}
+    <label className="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow cursor-pointer text-xs">
+      <input
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+
+          const token = localStorage.getItem("token");
+          const formData = new FormData();
+          formData.append("logo", file);
+
+          const res = await fetch(`${API_URL}/api/ngo/upload-logo`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            setNgo((prev: any) => ({
+              ...prev,
+              logo: data.logo,
+            }));
+          } else {
+            alert(data.message);
+          }
+        }}
+      />
+      ✏️
+    </label>
+  </div>
+
+  {/* NGO NAME + VERIFIED ICON */}
+  <div className="flex items-center justify-center gap-2">
+    <h2 className="font-semibold text-lg">{ngo.name}</h2>
+
+    {ngo.verified ? (
+      <Shield className="w-5 h-5 text-india-green-500" />
+    ) : (
+      <Shield className="w-5 h-5 text-yellow-500 opacity-60" />
+    )}
+  </div>
+
+  {/* VERIFIED BADGE */}
   {ngo.verified ? (
-    <Shield className="w-5 h-5 text-india-green-500" />
+    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+      Verified NGO
+    </span>
   ) : (
-    <Shield className="w-5 h-5 text-yellow-500 opacity-60" />
+    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
+      Pending Verification
+    </span>
   )}
-</div>
 
-{ngo.verified ? (
-  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-    Verified NGO
-  </span>
-) : (
-  <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
-    Pending Verification
-  </span>
-)}
-                <p className="text-sm text-muted-foreground mt-4">
-                  {ngo.description}
-                </p>
+  {/* DESCRIPTION */}
+  <p className="text-sm text-muted-foreground mt-4">
+    {ngo.description}
+  </p>
 
-                <div className="mt-4 space-y-2 text-sm">
-                  <div className="flex items-center gap-2 justify-center">
-                    <MapPin className="w-4 h-4" /> {ngo.city}
-                  </div>
-                  <div className="flex items-center gap-2 justify-center">
-                    <Briefcase className="w-4 h-4" /> {ngo.category}
-                  </div>
-                </div>
+  {/* LOCATION + CATEGORY */}
+  <div className="mt-4 space-y-2 text-sm">
+    <div className="flex items-center gap-2 justify-center">
+      <MapPin className="w-4 h-4" /> {ngo.city}
+    </div>
+    <div className="flex items-center gap-2 justify-center">
+      <Briefcase className="w-4 h-4" /> {ngo.category}
+    </div>
+  </div>
 
-                <div className="mt-6 pt-6 border-t border-border text-sm font-mono">
-                  {ngo.registrationId}
-                </div>
+  {/* REGISTRATION ID */}
+  <div className="mt-6 pt-6 border-t border-border text-sm font-mono">
+    {ngo.registrationId}
+  </div>
 
-                <Button variant="outline" className="w-full mt-6">
-                  Edit Profile
-                </Button>
-              </motion.div>
+  <Button variant="outline" className="w-full mt-6">
+    Edit Profile
+  </Button>
+
+</motion.div>
             </div>
           </div>
         </div>

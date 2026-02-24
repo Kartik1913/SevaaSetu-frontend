@@ -13,7 +13,9 @@ import {
   HeartPulse,
   Users2,
   Building2,
-  Briefcase
+  Briefcase,
+  AlertTriangle,
+  Home
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
@@ -25,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { API_URL } from "@/config/api";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 // Mock data for opportunities (KEPT YOUR DATA)
 // const mockOpportunities = [
@@ -108,6 +111,7 @@ const Opportunities = () => {
   const [opportunities, setOpportunities] = useState([]);
   const [appliedIds, setAppliedIds] = useState<string[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const navigate = useNavigate();
   const getIconFromCategory = (category: string) => {
   switch (category) {
     case "Education":
@@ -120,6 +124,10 @@ const Opportunities = () => {
       return Users2;
     default:
       return Briefcase;
+    case "Disaster Relief":
+      return AlertTriangle;
+    case "Women Empowerment":
+      return Home;
   }
 };
 
@@ -184,27 +192,39 @@ const Opportunities = () => {
   const categoryConfig: Record<string, any> = {
   Education: {
     icon: GraduationCap,
-    bg: "bg-blue-100",
-    text: "text-blue-700",
-    iconColor: "text-blue-600",
+    bg: "bg-blue-500",
+    text: "text-white",
+    iconColor: "text-white",
   },
   Environment: {
     icon: Leaf,
-    bg: "bg-green-100",
-    text: "text-green-700",
-    iconColor: "text-green-600",
+    bg: "bg-green-500",
+    text: "text-white",
+    iconColor: "text-white",
   },
   Health: {
     icon: HeartPulse,
-    bg: "bg-red-100",
-    text: "text-red-700",
-    iconColor: "text-red-600",
+    bg: "bg-red-500",
+    text: "text-white",
+    iconColor: "text-white",
   },
   "Social Welfare": {
     icon: Users2,
-    bg: "bg-purple-100",
-    text: "text-purple-700",
-    iconColor: "text-purple-600",
+    bg: "bg-purple-500",
+    text: "text-white",
+    iconColor: "text-white",
+  },
+  "Disaster Relief": {
+    icon: AlertTriangle,
+    bg: "bg-orange-500",
+    text: "text-white",
+    iconColor: "text-white",
+  },
+  "Women Empowerment": {
+    icon: Home,
+    bg: "bg-pink-500",
+    text: "text-white",
+    iconColor: "text-white",
   },
 };
 
@@ -287,6 +307,8 @@ const Opportunities = () => {
                   <SelectItem value="Environment">Environment</SelectItem>
                   <SelectItem value="Health">Health</SelectItem>
                   <SelectItem value="Social Welfare">Social Welfare</SelectItem>
+                  <SelectItem value="Disaster Relief">Disaster Relief</SelectItem>
+                  <SelectItem value="Women Empowerment">Women Empowerment</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -353,7 +375,7 @@ const Opportunities = () => {
                       <motion.div
                         whileHover={{ scale: 1.1 }}
                         transition={{ type: "spring", stiffness: 300 }}
-                        className={`w-12 h-12 rounded-xl ${config.bg} flex items-center justify-center`}
+                        className={`w-14 h-14 rounded-2xl ${config.bg} flex items-center justify-center shadow-md`}
                       >
                         <IconComponent className={`w-6 h-6 ${config.iconColor}`} />
                       </motion.div>
@@ -371,7 +393,13 @@ const Opportunities = () => {
 
                     <div className="flex items-center gap-2">
                       <Building2 className="w-4 h-4 text-orange-400" />
-                      {opportunity.ngo?.firstName}
+                      
+                      <span
+                        onClick={() => navigate(`/ngo/${opportunity.ngo?._id}`)}
+                        className="cursor-pointer hover:underline font-medium"
+                      >
+                        {opportunity.ngo?.firstName}
+                      </span>
 
                       {opportunity.ngo?.ngoVerified && (
                         <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
