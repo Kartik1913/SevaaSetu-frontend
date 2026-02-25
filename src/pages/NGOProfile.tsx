@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { MapPin, Shield, Briefcase, Users } from "lucide-react";
+import { MapPin, Shield, Briefcase, Users, UserCheck } from "lucide-react";
 import { API_URL } from "@/config/api";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,11 @@ const NGOProfile = () => {
   const [appliedIds, setAppliedIds] = useState<string[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const [postedOpportunities, setPostedOpportunities] = useState<any[]>([]);
+  const totalApplicants = postedOpportunities.reduce(
+    (sum, opp) => sum + (opp.totalApplicants || 0),
+    0
+  );
   
 
   useEffect(() => {
@@ -106,7 +110,7 @@ const NGOProfile = () => {
 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                   <MapPin className="w-4 h-4" />
-                  {ngo.city && ngo.state ? `${ngo.city}, ${ngo.state}` : "Location not specified"}
+                  {ngo.city || "Location not specified"}
                 </div>
 
                 <p className="text-sm mt-2 text-muted-foreground">
@@ -115,38 +119,30 @@ const NGOProfile = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-  <div className="civic-card p-5 bg-card text-center">
-    <p className="text-2xl font-bold">{stats.totalOpportunities}</p>
-    <p className="text-sm text-muted-foreground">
-      Opportunities
-    </p>
-  </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  <StatCard
+    label="Opportunities"
+    value={stats.totalOpportunities}
+    icon={Briefcase}
+  />
 
-  <div className="civic-card p-5 bg-card text-center">
-    <p className="text-2xl font-bold">{stats.totalApplications}</p>
-    <p className="text-sm text-muted-foreground">
-      Applications
-    </p>
-  </div>
+  <StatCard
+    label="Applications"
+    value={stats.totalApplications}
+    icon={Users}
+  />
 
-  <div className="civic-card p-5 bg-card text-center">
-    <p className="text-2xl font-bold">
-      {opportunities.filter(o => o.isActive).length}
-    </p>
-    <p className="text-sm text-muted-foreground">
-      Active
-    </p>
-  </div>
+  <StatCard
+    label="Active"
+    value={opportunities.filter(o => o.isActive).length}
+    icon={UserCheck}
+  />
 
-  <div className="civic-card p-5 bg-card text-center">
-    <p className="text-2xl font-bold">
-      {new Date(ngo.createdAt).getFullYear()}
-    </p>
-    <p className="text-sm text-muted-foreground">
-      Joined
-    </p>
-  </div>
+  <StatCard
+    label="Joined Year"
+    value={new Date(ngo.createdAt).getFullYear()}
+    icon={Clock}
+  />
 </div>
           </motion.div>
 
@@ -244,5 +240,17 @@ const NGOProfile = () => {
     </div>
   );
 };
+
+const StatCard = ({ label, value, icon: Icon }: any) => (
+  <motion.div className="civic-card p-5 bg-card flex items-center gap-4">
+    <div className="p-3 rounded-xl bg-saffron-100">
+      <Icon className="w-5 h-5 text-saffron-600" />
+    </div>
+    <div>
+      <p className="font-display text-xl font-bold">{value}</p>
+      <p className="text-sm text-muted-foreground">{label}</p>
+    </div>
+  </motion.div>
+);
 
 export default NGOProfile;

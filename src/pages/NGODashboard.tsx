@@ -109,6 +109,19 @@ const NGODashboard = () => {
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState("");
 
+  const fetchApplicants = async () => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_URL}/api/application/ngo`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await res.json();
+  setApplicants(Array.isArray(data) ? data : []);
+};
+
   // 🔐 Auth + NGO bootstrap (TEMP until /auth/me)
   useEffect(() => {
   const fetchNGO = async () => {
@@ -151,22 +164,9 @@ const NGODashboard = () => {
 
       const oppData = await oppRes.json();
       setPostedOpportunities(Array.isArray(oppData) ? oppData : []);
+      await fetchApplicants();
 
-      if (oppData && oppData.length > 0) {
-  const firstOppId = oppData[0]._id;
-
-  const appRes = await fetch(
-    `${API_URL}/api/application/ngo/${firstOppId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  const appData = await appRes.json();
-  setApplicants(appData);
-}
+      
       
       console.log("MY OPP DATA:", oppData);
     } catch (err) {
@@ -509,11 +509,7 @@ setPostedOpportunities(Array.isArray(newOppData) ? newOppData : []);
                 }
               );
 
-              setApplicants((prev) =>
-                prev.map((a) =>
-                  a._id === app._id ? { ...a, status: "accepted" } : a
-                )
-              );
+              await fetchApplicants();
             }}
           >
             Accept
@@ -537,11 +533,7 @@ setPostedOpportunities(Array.isArray(newOppData) ? newOppData : []);
                 }
               );
 
-              setApplicants((prev) =>
-                prev.map((a) =>
-                  a._id === app._id ? { ...a, status: "rejected" } : a
-                )
-              );
+              await fetchApplicants();
             }}
           >
             Reject
@@ -679,11 +671,23 @@ setPostedOpportunities(Array.isArray(newOppData) ? newOppData : []);
     </div>
   );
 };
+// const StatCard = ({ label, value, icon: Icon }: any) => (
+//   <motion.div className="civic-card p-5 bg-card">
+//     <Icon className="w-5 h-5 mb-2" />
+//     <p className="font-display text-2xl font-bold">{value}</p>
+//     <p className="text-sm text-muted-foreground">{label}</p>
+//   </motion.div>
+// );
+
 const StatCard = ({ label, value, icon: Icon }: any) => (
-  <motion.div className="civic-card p-5 bg-card">
-    <Icon className="w-5 h-5 mb-2" />
-    <p className="font-display text-2xl font-bold">{value}</p>
-    <p className="text-sm text-muted-foreground">{label}</p>
+  <motion.div className="civic-card p-5 bg-card flex items-center gap-4">
+    <div className="p-3 rounded-xl bg-saffron-100">
+      <Icon className="w-5 h-5 text-saffron-600" />
+    </div>
+    <div>
+      <p className="font-display text-xl font-bold">{value}</p>
+      <p className="text-sm text-muted-foreground">{label}</p>
+    </div>
   </motion.div>
 );
 
