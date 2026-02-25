@@ -15,6 +15,10 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import NGOProfile from "./pages/NGOProfile";
 import EditNGOProfile from "./pages/EditNGOProfile";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import CookiePolicy from "./pages/CookiePolicy"; // Placeholder for Cookie Policy Page
+import FAQ from "./pages/FAQ"; // Placeholder for FAQ Page
 
 
 const queryClient = new QueryClient();
@@ -65,6 +69,10 @@ const App = () => (
           <Route path="/ngos" element={<NGOs />} />   {/* NEW ROUTE */}
           <Route path="/ngo/:id" element={<NGOProfile />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/faq" element={<FAQ />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

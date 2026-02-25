@@ -15,11 +15,10 @@ const Footer = () => {
       { name: "About Us", path: "/about" },
       { name: "How It Works", path: "/#how-it-works" },
       { name: "FAQ", path: "/faq" },
-      { name: "Contact", path: "/contact" },
     ],
     legal: [
-      { name: "Privacy Policy", path: "/privacy" },
-      { name: "Terms of Service", path: "/terms" },
+      { name: "Privacy Policy", path: "/privacy-policy" },
+      { name: "Terms of Service", path: "/terms-of-service" },
       { name: "Cookie Policy", path: "/cookies" },
     ],
   };
