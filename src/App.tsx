@@ -12,6 +12,8 @@ import Opportunities from "./pages/Opportunities";
 import About from "./pages/About"; // Imported New Page
 import NGOs from "./pages/NGOs";   // Imported New Page
 import NotFound from "./pages/NotFound";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import NGOProfile from "./pages/NGOProfile";
 import EditNGOProfile from "./pages/EditNGOProfile";
@@ -36,6 +38,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           
           {/* Dashboard Routes */}
           <Route
