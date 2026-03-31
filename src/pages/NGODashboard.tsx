@@ -108,6 +108,8 @@ const NGODashboard = () => {
   const [commitment, setCommitment] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState("");
+  const [needs, setNeeds] = useState<string[]>([]);
+  const [needInput, setNeedInput] = useState("");
 
   const [onboardingDetails, setOnboardingDetails] = useState({
     locationUrl: "",
@@ -326,6 +328,35 @@ const NGODashboard = () => {
                     )}
                 </div>
 
+                {/* Items / Needs Input */}
+                <div className="mb-6">
+                    <input
+                      className="w-full bg-secondary/60 border border-border/50 outline-none focus:ring-2 focus:ring-indigo-400/50 rounded-xl px-4 py-3 text-sm transition-all focus:bg-background"
+                      placeholder="📦 Add items needed & press Enter (e.g. Books, Toys, Blankets)"
+                      value={needInput}
+                      onChange={(e) => setNeedInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (needInput.trim() && !needs.includes(needInput.trim())) {
+                            setNeeds([...needs, needInput.trim()]);
+                            setNeedInput("");
+                          }
+                        }
+                      }}
+                    />
+                    {needs.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {needs.map((need, index) => (
+                            <span key={index} className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-medium flex items-center gap-1 shadow-sm border border-indigo-200">
+                              📦 {need}
+                              <button onClick={() => setNeeds(needs.filter(n => n !== need))} className="hover:text-red-500 ml-1">✕</button>
+                            </span>
+                          ))}
+                        </div>
+                    )}
+                </div>
+
                 {/* Onboarding block - Elevated UI */}
                 <div className="p-6 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 rounded-2xl border border-indigo-100/60 mb-8 relative overflow-hidden shadow-inner hidden md:block" style={{display: 'block'}}>
                   <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-200/40 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
@@ -384,7 +415,7 @@ const NGODashboard = () => {
                             Authorization: `Bearer ${token}`,
                           },
                           body: JSON.stringify({ 
-                            title, description, location, category, commitment, skills,
+                            title, description, location, category, commitment, skills, needs,
                             onboarding: onboardingDetails.dateTime ? {
                               ...onboardingDetails,
                               dateTime: new Date(onboardingDetails.dateTime).toISOString()
@@ -397,6 +428,7 @@ const NGODashboard = () => {
                         setDescription("");
                         setLocation("");
                         setSkills([]);
+                        setNeeds([]);
                         setOnboardingDetails({
                           locationUrl: "",
                           dateTime: "",

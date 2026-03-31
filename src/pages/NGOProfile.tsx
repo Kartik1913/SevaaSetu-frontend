@@ -177,6 +177,28 @@ const NGOProfile = () => {
                         {opp.description}
                     </p>
 
+                    {opp.skills?.length > 0 && (
+                      <div className="mb-3">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Skills Needed</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {opp.skills.map((skill: string) => (
+                            <span key={skill} className="text-[11px] px-2 py-0.5 bg-slate-100 rounded-md text-slate-600 font-medium">{skill}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {opp.needs?.length > 0 && (
+                      <div className="mb-3">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">📦 Items Needed</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {opp.needs.map((need: string) => (
+                            <span key={need} className="text-[11px] px-2 py-0.5 bg-indigo-50 rounded-md text-indigo-600 font-medium border border-indigo-100">{need}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
                         <span>{opp.category}</span>
                         <span>{opp.location}</span>

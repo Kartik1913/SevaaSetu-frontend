@@ -49,6 +49,7 @@ export default function MissionControl() {
           dateTime: mission.onboarding?.dateTime || "",
           contactPerson: mission.onboarding?.contactPerson || "",
           instructions: mission.onboarding?.instructions || "",
+          needs: (mission.needs || []).join(", "),
       });
       setShowEditModal(true);
   };
@@ -62,6 +63,7 @@ export default function MissionControl() {
               description: editData.description,
               location: editData.location,
               commitment: editData.commitment,
+              needs: editData.needs.split(",").map((n: string) => n.trim()).filter(Boolean),
               onboarding: {
                   ...mission.onboarding,
                   dateTime: editData.dateTime,
@@ -563,6 +565,16 @@ export default function MissionControl() {
                                   onChange={e => setEditData({...editData, instructions: e.target.value})} 
                                   rows={3}
                                   placeholder="e.g. Wear comfortable shoes..."
+                                  className="w-full border-slate-200 rounded-lg p-3 text-sm focus:ring-saffron-500 focus:border-saffron-500 bg-slate-50 hover:bg-white transition"
+                              />
+                          </div>
+
+                          <div>
+                              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">📦 Items Needed (Comma Separated)</label>
+                              <input 
+                                  value={editData.needs} 
+                                  onChange={e => setEditData({...editData, needs: e.target.value})} 
+                                  placeholder="e.g. Books, Toys, Blankets, Water Bottles"
                                   className="w-full border-slate-200 rounded-lg p-3 text-sm focus:ring-saffron-500 focus:border-saffron-500 bg-slate-50 hover:bg-white transition"
                               />
                           </div>

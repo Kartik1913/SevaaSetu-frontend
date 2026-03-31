@@ -160,6 +160,7 @@ const VolunteerDashboard = () => {
                             icon: getIconFromCategory(app.opportunity?.category),
                             categoryColor: getCategoryColor(app.opportunity?.category),
                             onboarding: app.opportunity?.onboarding,
+                            needs: app.opportunity?.needs || [],
                             createdAt: app.createdAt,
                         }));
 
@@ -303,6 +304,25 @@ const VolunteerDashboard = () => {
                                                             {opp.status === "accepted" ? "Mission Joined" : opp.status === "completed" ? "Successfully Completed 🎉" : opp.status}
                                                         </div>
                                                     </div>
+
+                                                    {/* 📦 Bring Items Reminder */}
+                                                    {opp.status === "accepted" && opp.needs?.length > 0 && (
+                                                        <div className="mt-3 mx-1 p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                                                            <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0 mt-0.5 border border-amber-200">
+                                                                <span className="text-base">📦</span>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-xs font-bold text-amber-800 mb-1">Don't forget to bring!</p>
+                                                                <div className="flex flex-wrap gap-1.5">
+                                                                    {opp.needs.map((need: string) => (
+                                                                        <span key={need} className="text-[11px] px-2 py-0.5 bg-white rounded-md text-amber-700 font-semibold border border-amber-200 shadow-sm">
+                                                                            {need}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
 
                                                     {opp.status === "accepted" && opp.onboarding && (
                                                         <div className="mt-2.5 relative overflow-hidden bg-background/60 backdrop-blur-sm border border-border/60 rounded-xl shadow-sm transition-all">

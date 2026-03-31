@@ -147,9 +147,16 @@ const Opportunities = () => {
 
 
   const filteredOpportunities = opportunities.filter((opp: any) => {
+  const query = searchQuery.toLowerCase().trim();
   const matchesSearch =
-    opp.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    opp.ngo?.firstName?.toLowerCase().includes(searchQuery.toLowerCase());
+    !query ||
+    opp.title?.toLowerCase().includes(query) ||
+    opp.ngo?.firstName?.toLowerCase().includes(query) ||
+    opp.description?.toLowerCase().includes(query) ||
+    opp.location?.toLowerCase().includes(query) ||
+    opp.category?.toLowerCase().includes(query) ||
+    (Array.isArray(opp.skills) && opp.skills.some((skill: string) => skill.toLowerCase().includes(query))) ||
+    (Array.isArray(opp.needs) && opp.needs.some((need: string) => need.toLowerCase().includes(query)));
 
   const matchesCategory =
     selectedCategory === "all" ||
@@ -440,16 +447,37 @@ const Opportunities = () => {
                       {opportunity.description}
                     </p>
 
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {opportunity.skills?.map((skill: string) => (
-                        <span
-                          key={skill}
-                          className="text-xs px-2.5 py-1 bg-slate-100 rounded-md text-slate-600 font-medium"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
+                    {opportunity.skills?.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Skills Needed</p>
+                        <div className="flex flex-wrap gap-2">
+                          {opportunity.skills.map((skill: string) => (
+                            <span
+                              key={skill}
+                              className="text-xs px-2.5 py-1 bg-slate-100 rounded-md text-slate-600 font-medium"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {opportunity.needs?.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">📦 Items Needed</p>
+                        <div className="flex flex-wrap gap-2">
+                          {opportunity.needs.map((need: string) => (
+                            <span
+                              key={need}
+                              className="text-xs px-2.5 py-1 bg-indigo-50 rounded-md text-indigo-600 font-medium border border-indigo-100"
+                            >
+                              {need}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="bg-slate-50 p-4 border-t border-slate-100">
