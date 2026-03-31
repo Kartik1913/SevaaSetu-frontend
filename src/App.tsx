@@ -15,6 +15,9 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import NGOProfile from "./pages/NGOProfile";
 import EditNGOProfile from "./pages/EditNGOProfile";
+import EditVolunteerProfile from "./pages/EditVolunteerProfile";
+import MissionControl from "./pages/MissionControl";
+import CheckIn from "./pages/CheckIn";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy"; // Placeholder for Cookie Policy Page
@@ -45,6 +48,24 @@ const App = () => (
           />
 
           <Route
+            path="/volunteer/edit-profile"
+            element={
+              <ProtectedRoute allowedRole="volunteer">
+                <EditVolunteerProfile />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/checkin/:code"
+            element={
+              <ProtectedRoute allowedRole="volunteer">
+                <CheckIn />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/ngo/edit-profile"
             element={
               <ProtectedRoute allowedRole="ngo">
@@ -58,6 +79,15 @@ const App = () => (
             element={
               <ProtectedRoute allowedRole="ngo">
                 <NGODashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/ngo/mission/:id"
+            element={
+              <ProtectedRoute allowedRole="ngo">
+                <MissionControl />
               </ProtectedRoute>
             }
           />
