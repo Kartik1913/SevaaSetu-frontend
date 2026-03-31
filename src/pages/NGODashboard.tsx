@@ -145,18 +145,18 @@ const NGODashboard = () => {
       }
 
       try {
-        const res = await fetch(`${API_URL}/api/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        // Parallelize all network requests to avoid waterfall loading
+        const [authRes, oppRes, appRes] = await Promise.all([
+          fetch(`${API_URL}/api/auth/me`, { headers }),
+          fetch(`${API_URL}/api/opportunity/my`, { headers }),
+          fetch(`${API_URL}/api/application/ngo`, { headers })
+        ]);
 
-        const data = await res.json();
+        if (!authRes.ok) throw new Error("Failed to load NGO");
 
-        if (!res.ok) {
-          throw new Error("Failed to load NGO");
-        }
-
+        const data = await authRes.json();
         setNgo({
           name: data.firstName,              // org name stored here
           description: data.description || "",
@@ -167,19 +167,17 @@ const NGODashboard = () => {
           logo: data.logo || "",
         });
 
-        const oppRes = await fetch(`${API_URL}/api/opportunity/my`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        if (oppRes.ok) {
+          const oppData = await oppRes.json();
+          setPostedOpportunities(Array.isArray(oppData) ? oppData : []);
+          console.log("MY OPP DATA:", oppData);
+        }
+        
+        if (appRes.ok) {
+          const appData = await appRes.json();
+          setApplicants(Array.isArray(appData) ? appData : []);
+        }
 
-        const oppData = await oppRes.json();
-        setPostedOpportunities(Array.isArray(oppData) ? oppData : []);
-        await fetchApplicants();
-
-
-
-        console.log("MY OPP DATA:", oppData);
       } catch (err) {
         navigate("/login");
       }
@@ -429,7 +427,7 @@ const NGODashboard = () => {
               {/* Opportunities */}
               <SectionCard 
                 title="Your Opportunities" 
-                actionText={postedOpportunities.length > 4 ? (showAllOpps ? "View less" : "View all") : null}
+                actionText={postedOpportunities.length > 3 ? (showAllOpps ? "View less" : "View all") : null}
                 onAction={() => setShowAllOpps(!showAllOpps)}
               >
                 {postedOpportunities.length === 0 ? (
@@ -438,7 +436,7 @@ const NGODashboard = () => {
                   </div>
                 ) : (
                   <>
-                    {(showAllOpps ? postedOpportunities : postedOpportunities.slice(0, 4)).map((opp: any) => (
+                    {(showAllOpps ? postedOpportunities : postedOpportunities.slice(0, 3)).map((opp: any) => (
                     <div
                       key={opp._id}
                       className="p-4 bg-secondary/50 rounded-xl border border-border hover:shadow-md transition"
@@ -565,7 +563,7 @@ const NGODashboard = () => {
               </SectionCard> */}
               <SectionCard 
                 title="Recent Applicants" 
-                actionText={applicants.length > 5 ? (showAllApps ? "View less" : "View all") : null}
+                actionText={applicants.length > 4 ? (showAllApps ? "View less" : "View all") : null}
                 onAction={() => setShowAllApps(!showAllApps)}
               >
                 {applicants.length === 0 ? (
@@ -584,7 +582,7 @@ const NGODashboard = () => {
                     return (statusOrder[a.status] || 99) - (statusOrder[b.status] || 99);
                   });
                   
-                  const displayedApps = showAllApps ? sortedApps : sortedApps.slice(0, 5);
+                  const displayedApps = showAllApps ? sortedApps : sortedApps.slice(0, 4);
 
                   return (
                     <>

@@ -101,9 +101,9 @@ const VolunteerDashboard = () => {
     const [appliedOpportunities, setAppliedOpportunities] = useState<any[]>([]);
     const [openId, setOpenId] = useState<string | null>(null);
 
-    // 🔐 Fetch Volunteer Info
+    // 🔐 Fetch Volunteer Info & Applications Concurrently
     useEffect(() => {
-        const fetchVolunteer = async () => {
+        const fetchDashboardData = async () => {
             const token = localStorage.getItem("token");
             const role = localStorage.getItem("role");
 
@@ -113,13 +113,18 @@ const VolunteerDashboard = () => {
             }
 
             try {
-                const res = await fetch(`${API_URL}/api/auth/me`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                const headers = { Authorization: `Bearer ${token}` };
+                
+                // Fire both User Profile and Applications Requests concurrently
+                const [userRes, appRes] = await Promise.all([
+                    fetch(`${API_URL}/api/auth/me`, { headers }),
+                    fetch(`${API_URL}/api/application/my`, { headers })
+                ]);
 
-                const data = await res.json();
-                if (!res.ok) throw new Error();
+                if (!userRes.ok) throw new Error("Auth Failed");
 
+                const data = await userRes.json();
+                
                 const profileFields = [
                     data.city,
                     data.availability,
@@ -141,69 +146,53 @@ const VolunteerDashboard = () => {
                     bio: data.bio || "",
                     profileCompletion: calculatedCompletion,
                 });
-            } catch {
+
+                if (appRes.ok) {
+                    const appData = await appRes.json();
+                    if (!Array.isArray(appData)) {
+                        setAppliedOpportunities([]);
+                    } else {
+                        const formatted = appData.map((app: any) => ({
+                            id: app._id,
+                            title: app.opportunity?.title,
+                            ngo: app.opportunity?.ngo?.firstName,
+                            status: app.status,
+                            icon: getIconFromCategory(app.opportunity?.category),
+                            categoryColor: getCategoryColor(app.opportunity?.category),
+                            onboarding: app.opportunity?.onboarding,
+                            createdAt: app.createdAt,
+                        }));
+
+                        formatted.sort((a: any, b: any) => {
+                            const statusOrder: Record<string, number> = { accepted: 1, pending: 2, completed: 3, rejected: 4, absent: 5 };
+                            const statusDiff = (statusOrder[a.status] || 99) - (statusOrder[b.status] || 99);
+
+                            if (statusDiff !== 0) return statusDiff;
+
+                            // If same status, sort by date
+                            if (a.status === "accepted") {
+                                // For accepted missions: sort by closest upcoming onboarding dateTime first
+                                const dateA = a.onboarding?.dateTime ? new Date(a.onboarding.dateTime).getTime() : Number.MAX_SAFE_INTEGER;
+                                const dateB = b.onboarding?.dateTime ? new Date(b.onboarding.dateTime).getTime() : Number.MAX_SAFE_INTEGER;
+                                return dateA - dateB;
+                            } else {
+                                // For pending/rejected: sort by recently applied (createdAt) descending
+                                const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                                const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                                return dateB - dateA;
+                            }
+                        });
+
+                        setAppliedOpportunities(formatted);
+                    }
+                }
+            } catch (err) {
                 navigate("/login");
             }
         };
 
-        fetchVolunteer();
+        fetchDashboardData();
     }, [navigate]);
-
-    // 📌 Fetch Applications
-    useEffect(() => {
-        const fetchApplications = async () => {
-            const token = localStorage.getItem("token");
-
-            try {
-                const res = await fetch(`${API_URL}/api/application/my`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-
-                const data = await res.json();
-                if (!Array.isArray(data)) {
-                    setAppliedOpportunities([]);
-                    return;
-                }
-
-                const formatted = data.map((app: any) => ({
-                    id: app._id,
-                    title: app.opportunity?.title,
-                    ngo: app.opportunity?.ngo?.firstName,
-                    status: app.status,
-                    icon: getIconFromCategory(app.opportunity?.category),
-                    categoryColor: getCategoryColor(app.opportunity?.category),
-                    onboarding: app.opportunity?.onboarding,
-                    createdAt: app.createdAt,
-                }));
-
-                formatted.sort((a: any, b: any) => {
-                    const statusOrder: Record<string, number> = { accepted: 1, pending: 2, completed: 3, rejected: 4, absent: 5 };
-                    const statusDiff = (statusOrder[a.status] || 99) - (statusOrder[b.status] || 99);
-
-                    if (statusDiff !== 0) return statusDiff;
-
-                    // If same status, sort by date
-                    if (a.status === "accepted") {
-                        // For accepted missions: sort by closest upcoming onboarding dateTime first
-                        const dateA = a.onboarding?.dateTime ? new Date(a.onboarding.dateTime).getTime() : Number.MAX_SAFE_INTEGER;
-                        const dateB = b.onboarding?.dateTime ? new Date(b.onboarding.dateTime).getTime() : Number.MAX_SAFE_INTEGER;
-                        return dateA - dateB;
-                    } else {
-                        // For pending/rejected: sort by recently applied (createdAt) descending
-                        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-                        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-                        return dateB - dateA;
-                    }
-                });
-
-                setAppliedOpportunities(formatted);
-            } catch {
-                setAppliedOpportunities([]);
-            }
-        };
-
-        fetchApplications();
-    }, []);
 
     if (!user) {
         return (

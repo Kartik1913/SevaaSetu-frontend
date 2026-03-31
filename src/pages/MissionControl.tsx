@@ -17,7 +17,9 @@ import {
   Building2,
   XCircle,
   EyeOff,
-  AlertCircle
+  AlertCircle,
+  Save,
+  X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_URL } from "@/config/api";
@@ -33,6 +35,60 @@ export default function MissionControl() {
   const [applications, setApplications] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<TabType>("pending");
   const [loading, setLoading] = useState(true);
+  
+  // Edit State
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editData, setEditData] = useState<any>(null);
+
+  const openEditModal = () => {
+      setEditData({
+          title: mission.title || "",
+          description: mission.description || "",
+          location: mission.location || "",
+          commitment: mission.commitment || "",
+          dateTime: mission.onboarding?.dateTime || "",
+          contactPerson: mission.onboarding?.contactPerson || "",
+          instructions: mission.onboarding?.instructions || "",
+      });
+      setShowEditModal(true);
+  };
+
+  const saveMissionChanges = async () => {
+      const token = localStorage.getItem("token");
+      try {
+          // Re-nest onboarding details to match schema
+          const payload = {
+              title: editData.title,
+              description: editData.description,
+              location: editData.location,
+              commitment: editData.commitment,
+              onboarding: {
+                  ...mission.onboarding,
+                  dateTime: editData.dateTime,
+                  contactPerson: editData.contactPerson,
+                  instructions: editData.instructions
+              }
+          };
+
+          const res = await fetch(`${API_URL}/api/opportunity/edit/${id}`, {
+              method: "PUT",
+              headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) throw new Error("Update failed");
+          
+          const updatedMission = await res.json();
+          setMission(updatedMission);
+          setShowEditModal(false);
+          toast.success("Mission successfully updated!");
+      } catch (err) {
+          toast.error("Could not update mission details.");
+      }
+  };
 
   const fetchMissionData = async () => {
     try {
@@ -187,10 +243,18 @@ export default function MissionControl() {
                     </div>
                     {/* 4. QUICK ACTIONS */}
                     <div className="flex gap-3">
-                        <Button variant="outline" className="h-11">
+                        <Button 
+                            variant="outline" 
+                            className="h-11"
+                            onClick={() => {
+                                const url = `${window.location.origin}/opportunity/${mission._id}`;
+                                navigator.clipboard.writeText(url);
+                                toast.success("Mission link copied to clipboard!");
+                            }}
+                        >
                             <Share2 className="w-4 h-4 mr-2 text-muted-foreground"/> Share
                         </Button>
-                        <Button variant="outline" className="h-11">
+                        <Button variant="outline" className="h-11" onClick={openEditModal}>
                             <Edit className="w-4 h-4 mr-2 text-muted-foreground"/> Edit Mission
                         </Button>
                     </div>
@@ -407,6 +471,114 @@ export default function MissionControl() {
             </div>
         </div>
       </main>
+
+      {/* Edit Mission Modal Overlay */}
+      <AnimatePresence>
+          {showEditModal && editData && (
+              <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto"
+              >
+                  <motion.div 
+                      initial={{ scale: 0.95, y: 20 }}
+                      animate={{ scale: 1, y: 0 }}
+                      exit={{ scale: 0.95, y: 20 }}
+                      className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden my-8"
+                  >
+                      {/* Modal Header */}
+                      <div className="bg-slate-50 p-5 font-bold flex justify-between items-center border-b border-slate-200">
+                          <h2 className="text-xl text-slate-900">Edit Mission Details</h2>
+                          <button onClick={() => setShowEditModal(false)} className="p-2 bg-white rounded-full hover:bg-slate-200 transition">
+                              <X className="w-5 h-5 text-slate-500" />
+                          </button>
+                      </div>
+
+                      {/* Form Body */}
+                      <div className="p-6 space-y-5 max-h-[60vh] overflow-y-auto">
+                          <div>
+                              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Mission Title</label>
+                              <input 
+                                  value={editData.title} 
+                                  onChange={e => setEditData({...editData, title: e.target.value})} 
+                                  className="w-full border-slate-200 rounded-lg p-3 text-sm focus:ring-saffron-500 focus:border-saffron-500 bg-slate-50 hover:bg-white transition"
+                              />
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Location</label>
+                                  <input 
+                                      value={editData.location} 
+                                      onChange={e => setEditData({...editData, location: e.target.value})} 
+                                      className="w-full border-slate-200 rounded-lg p-3 text-sm focus:ring-saffron-500 focus:border-saffron-500 bg-slate-50 hover:bg-white transition"
+                                  />
+                              </div>
+                              <div>
+                                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Time Commitment</label>
+                                  <input 
+                                      value={editData.commitment} 
+                                      onChange={e => setEditData({...editData, commitment: e.target.value})} 
+                                      placeholder="e.g. 4 hours/week"
+                                      className="w-full border-slate-200 rounded-lg p-3 text-sm focus:ring-saffron-500 focus:border-saffron-500 bg-slate-50 hover:bg-white transition"
+                                  />
+                              </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-5">
+                              <div>
+                                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Date & Time</label>
+                                  <input 
+                                      type="datetime-local"
+                                      value={editData.dateTime ? new Date(new Date(editData.dateTime).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0,16) : ''}
+                                      onChange={e => setEditData({...editData, dateTime: e.target.value})} 
+                                      className="w-full border-slate-200 rounded-lg p-3 text-sm focus:ring-saffron-500 focus:border-saffron-500 bg-slate-50 hover:bg-white transition"
+                                  />
+                              </div>
+                              <div>
+                                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Contact Person</label>
+                                  <input 
+                                      value={editData.contactPerson} 
+                                      onChange={e => setEditData({...editData, contactPerson: e.target.value})} 
+                                      className="w-full border-slate-200 rounded-lg p-3 text-sm focus:ring-saffron-500 focus:border-saffron-500 bg-slate-50 hover:bg-white transition"
+                                  />
+                              </div>
+                          </div>
+
+                          <div>
+                              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">About this Mission</label>
+                              <textarea 
+                                  value={editData.description} 
+                                  onChange={e => setEditData({...editData, description: e.target.value})} 
+                                  rows={4}
+                                  className="w-full border-slate-200 rounded-lg p-3 text-sm focus:ring-saffron-500 focus:border-saffron-500 bg-slate-50 hover:bg-white transition"
+                              />
+                          </div>
+
+                          <div>
+                              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Special Instructions (Optional)</label>
+                              <textarea 
+                                  value={editData.instructions} 
+                                  onChange={e => setEditData({...editData, instructions: e.target.value})} 
+                                  rows={3}
+                                  placeholder="e.g. Wear comfortable shoes..."
+                                  className="w-full border-slate-200 rounded-lg p-3 text-sm focus:ring-saffron-500 focus:border-saffron-500 bg-slate-50 hover:bg-white transition"
+                              />
+                          </div>
+                      </div>
+
+                      {/* Modal Footer */}
+                      <div className="bg-slate-50 p-5 border-t border-slate-200 flex justify-end gap-3">
+                          <Button variant="ghost" onClick={() => setShowEditModal(false)}>Cancel</Button>
+                          <Button className="bg-saffron-500 hover:bg-saffron-600 font-bold" onClick={saveMissionChanges}>
+                              <Save className="w-4 h-4 mr-2" /> Save Changes
+                          </Button>
+                      </div>
+                  </motion.div>
+              </motion.div>
+          )}
+      </AnimatePresence>
 
       <Footer />
     </div>

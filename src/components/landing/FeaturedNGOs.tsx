@@ -1,48 +1,35 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Building2, MapPin, Users, ArrowRight, Shield } from "lucide-react";
+import { Building2, MapPin, ArrowRight, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
-const featuredNGOs = [
-  {
-    id: 1,
-    name: "Pratham Education Foundation",
-    category: "Education",
-    location: "Mumbai",
-    volunteers: 450,
-    verified: true,
-    description: "Empowering children through quality education since 1995.",
-  },
-  {
-    id: 2,
-    name: "Green Earth Initiative",
-    category: "Environment",
-    location: "Delhi NCR",
-    volunteers: 320,
-    verified: true,
-    description: "Working towards a sustainable and greener India.",
-  },
-  {
-    id: 3,
-    name: "Rural Health Mission",
-    category: "Health",
-    location: "Pan India",
-    volunteers: 280,
-    verified: true,
-    description: "Bringing healthcare to underserved rural communities.",
-  },
-  {
-    id: 4,
-    name: "Shakti Foundation",
-    category: "Women Empowerment",
-    location: "Bangalore",
-    volunteers: 190,
-    verified: true,
-    description: "Empowering women through skill development and education.",
-  },
-];
+import { API_URL } from "@/config/api";
 
 const FeaturedNGOs = () => {
+  const [featuredNGOs, setFeaturedNGOs] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchNGOs = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/ngo/list`);
+        if (!res.ok) throw new Error("Failed to fetch NGOs");
+        const data = await res.json();
+        
+        // Prioritize verified NGOs, fallback to newest
+        const sorted = data.sort((a: any, b: any) => {
+           if (a.ngoVerified && !b.ngoVerified) return -1;
+           if (!a.ngoVerified && b.ngoVerified) return 1;
+           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+        
+        setFeaturedNGOs(sorted.slice(0, 4));
+      } catch (err) {
+        console.error("Error loading featured NGOs", err);
+      }
+    };
+    fetchNGOs();
+  }, []);
+
   return (
     <section className="section-padding bg-background">
       <div className="container mx-auto">
@@ -68,7 +55,7 @@ const FeaturedNGOs = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {featuredNGOs.map((ngo, index) => (
             <motion.div
-              key={ngo.id}
+              key={ngo._id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -76,33 +63,36 @@ const FeaturedNGOs = () => {
               className="civic-card p-6 bg-card h-full flex flex-col"
             >
               <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
-                  <Building2 className="w-6 h-6 text-primary-foreground" />
+                <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center overflow-hidden">
+                  {ngo.logo ? (
+                     <img src={ngo.logo} alt={ngo.firstName} className="w-full h-full object-cover" />
+                  ) : (
+                     <Building2 className="w-6 h-6 text-primary-foreground" />
+                  )}
                 </div>
-                {ngo.verified && (
-                  <div className="flex items-center gap-1 text-india-green-500">
-                    <Shield className="w-4 h-4" />
-                    <span className="text-xs font-medium">Verified</span>
+                {ngo.ngoVerified && (
+                  <div className="flex items-center gap-1 text-india-green-500 bg-india-green-50 px-2 py-1 rounded-full border border-india-green-200">
+                    <Shield className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Verified</span>
                   </div>
                 )}
               </div>
 
-              <h3 className="font-semibold text-foreground mb-1">{ngo.name}</h3>
-              <span className="badge-saffron text-xs mb-3 w-fit">{ngo.category}</span>
+              <h3 className="font-semibold text-foreground mb-1">{ngo.firstName}</h3>
+              <span className="badge-saffron text-xs mb-3 w-fit">{ngo.category || "Civic Action"}</span>
               
-              <p className="text-sm text-muted-foreground mb-4 flex-grow">
-                {ngo.description}
+              <p className="text-sm text-muted-foreground mb-4 flex-grow line-clamp-3">
+                {ngo.description || "Partnering with verified organizations making a real difference across local communities."}
               </p>
 
               <div className="flex items-center justify-between text-sm text-muted-foreground pt-4 border-t border-border">
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4" />
-                  {ngo.location}
+                <span className="flex items-center gap-1 font-medium">
+                  <MapPin className="w-4 h-4 text-primary" />
+                  {ngo.city || "Pan India"}
                 </span>
-                <span className="flex items-center gap-1">
-                  <Users className="w-4 h-4" />
-                  {ngo.volunteers}
-                </span>
+                <Button variant="ghost" size="sm" asChild className="h-8 text-saffron-600 hover:text-saffron-700 hover:bg-saffron-50 px-2 -mr-2">
+                  <Link to={`/ngo/${ngo._id}`}>Preview Profile</Link>
+                </Button>
               </div>
             </motion.div>
           ))}

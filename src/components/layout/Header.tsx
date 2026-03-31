@@ -16,9 +16,10 @@ const Header = () => {
     const token = localStorage.getItem("token");
     const storedRole = localStorage.getItem("role");
 
-    setIsLoggedIn(!!token);
+    // Guard against literal string values of "undefined" or "null"
+    setIsLoggedIn(!!token && token !== "undefined" && token !== "null");
     setRole(storedRole);
-  }, []);
+  }, [location.pathname]);
 
   const navLinks = [
     { name: "Home", path: "/" },

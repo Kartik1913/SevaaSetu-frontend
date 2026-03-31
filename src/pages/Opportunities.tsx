@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { API_URL } from "@/config/api";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // Mock data for opportunities (KEPT YOUR DATA)
 // const mockOpportunities = [
@@ -104,15 +104,28 @@ import { useNavigate } from "react-router-dom";
 
 
 const Opportunities = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const initialCategory = searchParams.get("category") || "all";
+
   const [selectedCommitment, setSelectedCommitment] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [appliedIds, setAppliedIds] = useState<string[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Sync category state if the URL query parameter changes
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const categoryQuery = params.get("category");
+    if (categoryQuery) {
+       setSelectedCategory(categoryQuery);
+    }
+  }, [location.search]);
   const getIconFromCategory = (category: string) => {
   switch (category) {
     case "Education":

@@ -84,7 +84,7 @@ const CategoriesSection = () => {
               transition={{ duration: 0.5, delay: index * 0.05 }}
             >
               <Link
-                to={`/opportunities?category=${category.name.toLowerCase().replace(" ", "-")}`}
+                to={`/opportunities?category=${encodeURIComponent(category.name)}`}
                 className="civic-card p-6 flex flex-col items-center text-center group hover:shadow-lg transition-all duration-300 bg-card h-full"
               >
                 <div className={`w-14 h-14 rounded-2xl ${category.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
