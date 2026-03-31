@@ -117,7 +117,7 @@ const EditVolunteerProfile = () => {
             <div>
               <Button
                 variant="ghost"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/volunteer/dashboard")}
                 className="mb-2 -ml-3 text-muted-foreground hover:text-foreground"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back to Dashboard
