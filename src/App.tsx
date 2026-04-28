@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ScrollToTop from "@/components/layout/ScrollToTop";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -20,10 +21,12 @@ import EditNGOProfile from "./pages/EditNGOProfile";
 import EditVolunteerProfile from "./pages/EditVolunteerProfile";
 import MissionControl from "./pages/MissionControl";
 import CheckIn from "./pages/CheckIn";
+import Certificate from "./pages/Certificate";
+import CertificateVerify from "./pages/CertificateVerify";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
-import CookiePolicy from "./pages/CookiePolicy"; // Placeholder for Cookie Policy Page
-import FAQ from "./pages/FAQ"; // Placeholder for FAQ Page
+import CookiePolicy from "./pages/CookiePolicy";
+import FAQ from "./pages/FAQ";
 
 
 const queryClient = new QueryClient();
@@ -34,6 +37,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
@@ -97,10 +101,21 @@ const App = () => (
           />
 
           
+          {/* Certificate Routes */}
+          <Route path="/certificate/verify/:certId" element={<CertificateVerify />} />
+          <Route
+            path="/certificate/:applicationId"
+            element={
+              <ProtectedRoute allowedRole="volunteer">
+                <Certificate />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Public Pages */}
           <Route path="/opportunities" element={<Opportunities />} />
-          <Route path="/about" element={<About />} /> {/* NEW ROUTE */}
-          <Route path="/ngos" element={<NGOs />} />   {/* NEW ROUTE */}
+          <Route path="/about" element={<About />} />
+          <Route path="/ngos" element={<NGOs />} />
           <Route path="/ngo/:id" element={<NGOProfile />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />

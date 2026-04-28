@@ -20,6 +20,7 @@ import {
     Users2,
     AlertTriangle,
     Home,
+    Award,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { API_URL } from "@/config/api";
@@ -304,6 +305,19 @@ const VolunteerDashboard = () => {
                                                             {opp.status === "accepted" ? "Mission Joined" : opp.status === "completed" ? "Successfully Completed 🎉" : opp.status}
                                                         </div>
                                                     </div>
+
+                                                    {/* 🏆 Certificate Button for Completed Missions */}
+                                                    {opp.status === "completed" && (
+                                                        <div className="mt-3 mx-1">
+                                                            <Button
+                                                                className="w-full sm:w-auto bg-gradient-to-r from-[#FF9933] to-[#FF7700] hover:from-[#FF8822] hover:to-[#FF6600] text-white font-semibold shadow-md shadow-orange-200/50 hover:shadow-lg transition-all active:scale-[0.98] rounded-xl h-10 gap-2"
+                                                                onClick={() => navigate(`/certificate/${opp.id}`)}
+                                                            >
+                                                                <Award className="w-4 h-4" />
+                                                                Get Certificate
+                                                            </Button>
+                                                        </div>
+                                                    )}
 
                                                     {/* 📦 Bring Items Reminder */}
                                                     {opp.status === "accepted" && opp.needs?.length > 0 && (

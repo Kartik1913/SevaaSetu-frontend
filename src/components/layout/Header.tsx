@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import NotificationBell from "./NotificationBell";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -92,6 +93,7 @@ const Header = () => {
               </>
             ) : (
               <>
+                <NotificationBell />
                 <Button variant="outline" onClick={goToDashboard}>
                   Dashboard
                 </Button>
@@ -157,6 +159,10 @@ const Header = () => {
                   </>
                 ) : (
                   <>
+                    <div className="flex items-center justify-between px-4 py-2 mb-2 bg-secondary rounded-lg">
+                      <span className="text-sm font-medium text-foreground">Notifications</span>
+                      <NotificationBell />
+                    </div>
                     <Button
                       variant="outline"
                       className="w-full"
